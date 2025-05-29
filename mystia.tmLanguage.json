@@ -1,0 +1,127 @@
+{
+  "information_for_contributors": [
+    "This file has been converted from https://github.com/microsoft/TypeScript-TmLanguage/blob/master/TypeScriptReact.tmLanguage",
+    "If you want to provide a fix or improvement, please create a pull request against the original repository.",
+    "Once accepted there, we are happy to receive an update request."
+  ],
+  "version": "https://github.com/microsoft/TypeScript-TmLanguage/commit/9a0476ea681bafc96f68956260e32edff51e05f6",
+  "name": "Mystia",
+  "scopeName": "source.mystia",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#imports" },
+    { "include": "#typeDefinition" },
+    { "include": "#keywords" },
+    { "include": "#functions" },
+    { "include": "#variables" },
+    { "include": "#operators" },
+    { "include": "#numbers" },
+    { "include": "#strings" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.tilde.mystia",
+          "begin": "~~",
+          "end": "~~",
+          "beginCaptures": { "0": { "name": "punctuation.definition.comment.begin.mystia" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.comment.end.mystia" } },
+          "patterns": [ { "match": ".", "name": "comment.block.content.mystia" } ]
+        }
+      ]
+    },
+    "imports": {
+      "patterns": [
+        { "match": "(?<=\\bload\\s+)([\\w\\.\\/]+)(?=::)", "name": "entity.name.namespace.mystia" },
+        { "name": "keyword.control.import.mystia", "match": "\\bload\\b" },
+        { "name": "variable.parameter.mystia", "match": "\\b[A-Za-z_][\\w]*\\b(?=\\s*:)", "comment": "パラメーター名" },
+        {
+          "begin": ":(\\s*)\\[\\s*",
+          "beginCaptures": { "0": { "name": "punctuation.definition.list.begin.mystia" } },
+          "end": "\\s*\\]",
+          "endCaptures": { "0": { "name": "punctuation.definition.list.end.mystia" } },
+          "patterns": [
+            { "name": "storage.type.identifier.mystia", "match": "\\b[A-Za-z_][\\w]*\\b" },
+            { "name": "constant.numeric.integer.mystia", "match": "\\b\\d+\\b" },
+            { "name": "punctuation.separator.list.mystia", "match": ";" }
+          ]
+        },
+        { "match": ":(\\s*)([A-Za-z_][\\w]*)", "captures": { "2": { "name": "storage.type.identifier.mystia" } } },
+        {
+          "begin": "(\\bload)\\s+([\\w\\.\\/]+)::\\{",
+          "beginCaptures": { "1": { "name": "keyword.control.import.mystia" }, "2": { "name": "entity.name.namespace.mystia" } },
+          "end": "\\}",
+          "endCaptures": { "0": { "name": "punctuation.definition.brace.end.mystia" } },
+          "patterns": [ { "name": "entity.name.function.import.mystia", "match": "\\b[\\w_]+(?=\\()" },
+            { "name": "punctuation.definition.parameters.begin.mystia", "match": "\\(" },
+            { "name": "punctuation.definition.parameters.end.mystia", "match": "\\)" },
+            { "include": "#imports" }
+          ]
+        },
+        {
+          "begin": "(\\bload)\\s+([\\w\\.\\/]+)\\s*\\{?",
+          "beginCaptures": { "1": { "name": "keyword.control.import.mystia" }, "2": { "name": "entity.name.namespace.mystia" } },
+          "end": ";",
+          "endCaptures": { "0": { "name": "punctuation.terminator.statement.mystia" } },
+          "patterns": [
+            { "name": "entity.name.function.import.mystia", "match": "\\b[\\w_]+(?=\\()" },
+            { "name": "punctuation.definition.parameters.begin.mystia", "match": "\\(" },
+            { "name": "punctuation.definition.parameters.end.mystia", "match": "\\)" },
+            { "include": "#imports" },
+            { "name": "storage.modifier.alias.mystia", "match": "\\bas\\b" },
+            { "name": "entity.other.alias-name.mystia", "match": "\\b[a-zA-Z_]\\w*\\b" }
+          ]
+        }
+      ]
+    },
+    "typeDefinition": {
+      "patterns": [
+        {
+          "name": "storage.type.enum.mystia",
+          "begin": "\\btype\\s+([A-Z][A-Za-z0-9_]*)\\s*=\\s*\\(",
+          "beginCaptures": { "1": { "name": "entity.name.type.mystia" } },
+          "end": "\\);",
+          "endCaptures": { "0": { "name": "punctuation.terminator.definition.mystia" } },
+          "patterns": [ { "name": "constant.language.enum.separator.mystia", "match": "\\|" },
+            { "name": "constant.language.enum.member.mystia", "match": "\\b[a-z][A-Za-z0-9_]*\\b" }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "storage.type.function.mystia", "match": "\\b(?:let|pub\\s+let)\\b" },
+        { "name": "keyword.control.flow.mystia", "match": "\\b(?:if|else if|else|while|loop)\\b" }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        { "name": "support.function.magic.mystia", "match": "(?<=\\.)\\b([A-Za-z_][\\w]*)\\b(?=\\()" },
+        { "name": "entity.name.function.call.mystia", "match": "\\b([A-Za-z_][\\w]*)\\s*(?=\\()" }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        { "name": "variable.other.mystia", "match": "\\b(?!let\\b|if\\b|else\\b|while\\b|loop\\b|pub\\b|load\\b|type\\b|true\\b|false\\b)([A-Za-z_]\\w*)\\b(?!\\s*\\()" }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.arithmetic.mystia", "match": "%|\\+\\+|\\+|-|\\*|/" },
+        { "name": "keyword.operator.comparison.mystia", "match": "==|<=?|>=?" },
+        { "name": "keyword.operator.assignment.mystia", "match": "=" },
+        { "name": "keyword.operator.other.mystia", "match": "\\bas\\b" }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.float.mystia", "match": "\\b\\d+\\.\\d+\\b" },
+        { "name": "constant.numeric.integer.mystia", "match": "\\b\\d+\\b" }
+      ]
+    },
+    "strings": {
+      "patterns": [ { "name": "string.quoted.double.mystia", "begin": "\"", "end": "\"" } ]
+    }
+  }
+}
