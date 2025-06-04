@@ -4,11 +4,25 @@ A [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marke
 
 ## Quick start
 
--   **Step.1**  
+-   **Step.1**:  Make sure you have Node.js installed. Then type and run following code on VScode TERMINAL:  
+`npm install -g @vscode/vsce`
 
-## Set up your environment
+-   **Step.2**:  Type and run following:  
+ `npm add my-org/my-repo#my-branch`
 
-<!-- use less words -->
+-   **Step.3**:  Press F5 (or fn+F5) and select  
+ `Mystia: Setup Environment`
+
+## Debug / Compile / REPL / Summery
+**Debug** executes Mystia file
+
+**Compile** makes Mystia file into wasm and wat file
+
+**REPL** shows REPL window on TERMINAL
+
+**Summery** shows all arguments used in the Mystia file
+
+---
 
 # Mystia Language Specification
 ---
