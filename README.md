@@ -4,14 +4,13 @@ A [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marke
 
 ## Quick start
 
--   **Step.1**:  Make sure you have Node.js installed. Then type and run following code on VScode TERMINAL:  
-`npm install -g @vscode/vsce`
+-   **Step.1**:  Install `.vsix` from Release
 
--   **Step.2**:  Type and run following:  
- `npm add my-org/my-repo#my-branch`
+-   **Step.2**:  From EXTENSIONS, press `...` and select `Install from VSIX...`
 
--   **Step.3**:  Press F5 (or fn+F5) and select  
- `Mystia: Setup Environment`
+-   **Step.3**:  Select the file you downloaded and reload the window
+
+-   **Step.4**:  Press `F5` or `fn + F5` and select `Mystia: Setup Environment`
 
 ## Debug / Compile / REPL / Summery
 **Debug** executes Mystia file
