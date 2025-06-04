@@ -16,7 +16,8 @@
     { "include": "#variables" },
     { "include": "#operators" },
     { "include": "#numbers" },
-    { "include": "#strings" }
+    { "include": "#strings" },
+    { "include": "#literal"}
   ],
   "repository": {
     "comments": {
@@ -31,11 +32,19 @@
         }
       ]
     },
+    "literal": {
+        "patterns": [
+            {
+                "name": "constant.language.mystia",
+                "match": "\\b(true|false|null)\\b"
+            }
+        ]
+    },
     "imports": {
       "patterns": [
         { "match": "(?<=\\bload\\s+)([\\w\\.\\/]+)(?=::)", "name": "entity.name.namespace.mystia" },
         { "name": "keyword.control.import.mystia", "match": "\\bload\\b" },
-        { "name": "variable.parameter.mystia", "match": "\\b[A-Za-z_][\\w]*\\b(?=\\s*:)", "comment": "パラメーター名" },
+        { "name": "variable.parameter.mystia", "match": "\\b[A-Za-z_][\\w]*\\b(?=\\s*:)", "comment": "Parameter" },
         {
           "begin": ":(\\s*)\\[\\s*",
           "beginCaptures": { "0": { "name": "punctuation.definition.list.begin.mystia" } },
@@ -79,9 +88,9 @@
       "patterns": [
         {
           "name": "storage.type.enum.mystia",
-          "begin": "\\btype\\s+([A-Z][A-Za-z0-9_]*)\\s*=\\s*\\(",
+          "begin": "\\btype\\s+([A-Z][A-Za-z0-9_]*)\\b",
           "beginCaptures": { "1": { "name": "entity.name.type.mystia" } },
-          "end": "\\);",
+          "end": ";",
           "endCaptures": { "0": { "name": "punctuation.terminator.definition.mystia" } },
           "patterns": [ { "name": "constant.language.enum.separator.mystia", "match": "\\|" },
             { "name": "constant.language.enum.member.mystia", "match": "\\b[a-z][A-Za-z0-9_]*\\b" }
@@ -92,7 +101,7 @@
     "keywords": {
       "patterns": [
         { "name": "storage.type.function.mystia", "match": "\\b(?:let|pub\\s+let)\\b" },
-        { "name": "keyword.control.flow.mystia", "match": "\\b(?:if|else if|else|while|loop)\\b" }
+        { "name": "keyword.control.flow.mystia", "match": "\\b(?:if|else if|then|else|while|loop)\\b" }
       ]
     },
     "functions": {
@@ -103,7 +112,7 @@
     },
     "variables": {
       "patterns": [
-        { "name": "variable.other.mystia", "match": "\\b(?!let\\b|if\\b|else\\b|while\\b|loop\\b|pub\\b|load\\b|type\\b|true\\b|false\\b)([A-Za-z_]\\w*)\\b(?!\\s*\\()" }
+        { "name": "variable.other.mystia", "match": "\\b(?!let\\b|if\\b|then\\b|else\\b|while\\b|loop\\b|pub\\b|load\\b|type\\b|true\\b|false\\b|null\\b)([A-Za-z_]\\w*)\\b(?!\\s*\\()" }
       ]
     },
     "operators": {

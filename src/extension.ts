@@ -1,125 +1,96 @@
 import * as vscode from 'vscode';
 
-// Semantic Token Types and Modifiers
-const tokenTypes = new Map<string, number>();
-const tokenModifiers = new Map<string, number>();
-const legend = (() => {
-  const tokenTypesLegend = ['variable', 'variable.definition', 'variable.undefined'];
-  const tokenModifiersLegend: string[] = [];
-  tokenTypesLegend.forEach((t, i) => tokenTypes.set(t, i));
-  tokenModifiersLegend.forEach((m, i) => tokenModifiers.set(m, i));
-  return new vscode.SemanticTokensLegend(tokenTypesLegend, tokenModifiersLegend);
-})();
-
 export function activate(context: vscode.ExtensionContext) {
-  // Register Semantic Tokens Provider for Mystia
+
+  // ----- 0) Compile 現在のファイル -----
   context.subscriptions.push(
-    vscode.languages.registerDocumentSemanticTokensProvider(
-      { language: 'mystia' },
-      new MystiaSemanticTokensProvider(),
-      legend
-    )
+    vscode.commands.registerCommand('mystia.compile', () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor to compile.');
+        return;
+      }
+      const filePath = editor.document.fileName;
+      const term = vscode.window.createTerminal('Mystia Compile');
+      term.show();
+      // cargo run <filePath>
+      term.sendText(`cd ./mystia`);
+      term.sendText(`cargo run ${quotePath(filePath)}`);
+    })
   );
 
-  // Command: Setup Environment
+  // ----- 1) Debug 現在のファイル -----
+  context.subscriptions.push(
+    vscode.commands.registerCommand('mystia.debug', () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor to debug.');
+        return;
+      }
+      const filePath = editor.document.fileName;
+      const term = vscode.window.createTerminal('Mystia Debug');
+      term.show();
+      // cargo run <filePath>
+      term.sendText(`cd ./mystia`);
+      term.sendText(`node run.mjs ${quotePath(filePath)}`);
+    })
+  );
+
+  // ----- 2) 環境構築 -----
   context.subscriptions.push(
     vscode.commands.registerCommand('mystia.setupEnv', () => {
-      const term = vscode.window.createTerminal('Mystia Setup');
+      const term = vscode.window.createTerminal('Mystia Env Setup');
       term.show();
-      term.sendText('npm install -g mystia-compiler');
+
+      // (1) リポジトリがなければ git clone、あれば git pull
+      // (2) wasm ディレクトリへ移動して wasm-pack build → 出力を移動
+      // ※workspaceFolder を使う場合は `${vscode.workspace.workspaceFolders![0].uri.fsPath}` を付与しても可
+      term.sendText(
+        `if [ ! -d mystia ]; then\n` +
+        `  git clone https://github.com/KajizukaTaichi/mystia\n` +
+        `else\n` +
+        `  cd mystia && git pull && cd ..\n` +
+        `fi`
+      );
+      term.sendText(`cd mystia/wasm`);
+      term.sendText(`wasm-pack build --target nodejs && mv pkg/* ../docs/wasm/node/`);
+      term.sendText(`wasm-pack build --target web && mv pkg/* ../docs/wasm/web/`);
     })
   );
 
-  // Command: Build current file
+  // ----- 3) REPL -----
   context.subscriptions.push(
-    vscode.commands.registerCommand('mystia.build', () => {
+    vscode.commands.registerCommand('mystia.repl', () => {
+      const term = vscode.window.createTerminal('Mystia REPL');
+      term.show();
+      term.sendText(`node ./mystia/repl.mjs`);
+    })
+  );
+
+  // ----- 4) Summary (cargo run <file> -s) -----
+  context.subscriptions.push(
+    vscode.commands.registerCommand('mystia.summary', () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
+        vscode.window.showErrorMessage('No active editor to summarize.');
         return;
       }
-      const file = editor.document.fileName;
-      const term = vscode.window.createTerminal('Mystia Build');
+      const filePath = editor.document.fileName;
+      const term = vscode.window.createTerminal('Mystia Summary');
       term.show();
-      term.sendText(`mystia build ${file}`);
+      term.sendText(`cd ./mystia`);
+      term.sendText(`cargo run ${quotePath(filePath)} -s`);
     })
   );
 
-  // Command: Run current file
-  context.subscriptions.push(
-    vscode.commands.registerCommand('mystia.runFile', () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        return;
-      }
-      const file = editor.document.fileName;
-      const term = vscode.window.createTerminal('Mystia Run');
-      term.show();
-      term.sendText(`mystia run ${file}`);
-    })
-  );
-
-  // Task Provider for Mystia Build
-  context.subscriptions.push(
-    vscode.tasks.registerTaskProvider('mystia', {
-      provideTasks: () => {
-        const buildTask = new vscode.Task(
-          { type: 'mystia', task: 'build' },
-          vscode.TaskScope.Workspace,
-          'Mystia: build current file',
-          'mystia',
-          new vscode.ShellExecution('mystia build ${file}')
-        );
-        return [buildTask];
-      },
-      resolveTask(_task: vscode.Task): vscode.Task | undefined {
-        return _task;
-      }
-    })
-  );
-
-  // Status Bar Button for Build
-  const buildBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-  buildBar.text = '$(tools) Mystia Build';
-  buildBar.command = 'mystia.build';
-  buildBar.show();
-  context.subscriptions.push(buildBar);
 }
 
-class MystiaSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider {
-  async provideDocumentSemanticTokens(
-    doc: vscode.TextDocument
-  ): Promise<vscode.SemanticTokens> {
-    const builder = new vscode.SemanticTokensBuilder(legend);
-    const text = doc.getText();
-    const definedVars = new Set<string>();
-
-    // Capture variable definitions: let <name>
-    const defRegex = /\blet\s+([A-Za-z_]\w*)/g;
-    let match: RegExpExecArray | null;
-    while ((match = defRegex.exec(text))) {
-      const varName = match[1];
-      definedVars.add(varName);
-      const index = match.index + match[0].indexOf(varName);
-      const pos = doc.positionAt(index);
-      builder.push(pos.line, pos.character, varName.length, tokenTypes.get('variable.definition')!, 0);
-    }
-
-    // Capture all identifiers
-    const idRegex = /\b([A-Za-z_]\w*)\b/g;
-    while ((match = idRegex.exec(text))) {
-      const name = match[1];
-      if (/\b(?:let|pub|load|type|if|else|while|loop)\b/.test(name)) continue;
-      const index = match.index;
-      const pos = doc.positionAt(index);
-      if (definedVars.has(name)) {
-        builder.push(pos.line, pos.character, name.length, tokenTypes.get('variable')!, 0);
-      } else {
-        builder.push(pos.line, pos.character, name.length, tokenTypes.get('variable.undefined')!, 0);
-      }
-    }
-
-    return builder.build();
+// VSCode のターミナルでパスを正しく扱うため、必要に応じてクオートで囲む
+function quotePath(path: string): string {
+  if (path.includes(' ')) {
+    return `"${path}"`;
   }
-
-  releaseDocumentSemanticTokens?(): void {}
+  return path;
 }
+
+export function deactivate() {}

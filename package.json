@@ -1,70 +1,75 @@
 {
-    "name": "mystia-language-extension",
-    "displayName": "%displayName%",
-    "description": "%description%",
-    "publisher": "JackTriton",
-    "version": "0.0.1",
-    "icon": "./mystia.png",
-    "main": "./src/extension.ts",  
-    "engines": {
-      "vscode": "^1.33.1"
-    },
-    "categories": [
-      "Programming Languages"
+  "name": "mystia-language-extension",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "publisher": "JackTriton",
+  "version": "0.0.1",
+  "icon": "./mystia.png",
+  "main": "./out/extension.js",
+  "engines": {
+    "vscode": "^1.33.1"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onCommand:mystia.compile",
+    "onCommand:mystia.debug",
+    "onCommand:mystia.setupEnv",
+    "onCommand:mystia.repl",
+    "onCommand:mystia.summary"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "mystia.compile",
+        "title": "Mystia: Compile Current File"
+      },
+      {
+        "command": "mystia.debug",
+        "title": "Mystia: Debug Current File"
+      },
+      {
+        "command": "mystia.setupEnv",
+        "title": "Mystia: Setup Environment"
+      },
+      {
+        "command": "mystia.repl",
+        "title": "Mystia: Open REPL"
+      },
+      {
+        "command": "mystia.summary",
+        "title": "Mystia: Generate Summary"
+      }
     ],
-    "scripts": {
-      "vscode:prepublish": "npm run build",
-      "build": "tsc -p ./",                  
-      "watch": "tsc -watch -p ./"
-    },
-    "activationEvents": [
-      "onLanguage:mystia"
+    "languages": [
+      {
+        "id": "mystia",
+        "extensions": [
+          ".ms"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "devDependencies": {
-     "typescript": "^4.9.5",
-     "vscode": "^1.1.37",
-     "@types/node": "^18.0.0",
-     "@types/vscode": "^1.80.0"
-    },
-    "contributes": {
-      "commands": [
-        {
-          "command": "mystia.setupEnv",
-          "title": "Mystia: 環境セットアップ"
-        },
-        {
-          "command": "mystia.build",
-          "title": "Mystia: ビルド"
-        },
-        {
-          "command": "mystia.runFile",
-          "title": "Mystia: 実行"
-        }
-      ],
-      "languages": [
-        {
-          "id": "mystia",
-          "aliases": ["Mystia"],
-          "extensions": [".ms"],
-          "configuration": "./language-configuration.json"
-        }
-      ],
-      "grammars": [
-        {
-          "language": "mystia",
-          "scopeName": "source.mystia",
-          "path": "./mystia.tmLanguage.json"
-        }
-      ],
-      "semanticTokenScopes": [
+    "grammars": [
       {
         "language": "mystia",
-        "scopes": {
-          "variable.definition": "variable.other.mystia",
-          "variable": "variable.other.mystia",
-          "variable.undefined": "variable.other.undefined.mystia"
-        }
+        "scopeName": "source.mystia",
+        "path": "./mystia.tmLanguage.json"
       }
     ]
-    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "postinstall": "npm run compile",
+    "setup": "npm install && npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^14.18.63",
+    "@types/vscode": "^1.100.0",
+    "typescript": "^4.9.5",
+    "vscode": "^1.1.34"
   }
+}

@@ -4,7 +4,7 @@ A [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marke
 
 ## Quick start
 
--   **Step.1**  hoge
+-   **Step.1**  
 
 ## Set up your environment
 
