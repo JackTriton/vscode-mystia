@@ -42,6 +42,14 @@
         "title": "Mystia: Generate Summary"
       }
     ],
+    "keybindings": [
+         {
+           "key": "F5",
+           "command": "workbench.action.quickOpen",
+           "args": ">Mystia:",
+           "when": "editorTextFocus"
+         }
+    ],
     "languages": [
       {
         "id": "mystia",
